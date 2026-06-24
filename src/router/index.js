@@ -7,9 +7,10 @@ const routes = [
   { path: '/admission', name: 'Admission', component: () => import('../views/AdmissionView.vue') },
   { path: '/campus', name: 'Campus', component: () => import('../views/CampusView.vue') },
   { path: '/student-life', name: 'StudentLife', component: () => import('../views/StudentLifeView.vue') },
+  { path: '/apply', name: 'Apply', component: () => import('../views/ApplyView.vue') },
   { path: '/register', name: 'Register', component: () => import('../views/RegisterView.vue') },
   { path: '/login', name: 'Login', component: () => import('../views/LoginView.vue') },
-  { path: '/apply', name: 'Apply', component: () => import('../views/ApplyView.vue') },
+  { path: '/verify', name: 'Verify', component: () => import('../views/VerifyView.vue') },
 ]
 
 const router = createRouter({

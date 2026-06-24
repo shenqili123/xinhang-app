@@ -1,66 +1,84 @@
 <template>
-  <section class="auth-page">
-    <div class="auth-card">
-      <h1>{{ t('Log In', '登录') }}</h1>
-      <p class="auth-subtitle">{{ t('Sign in to manage your application.', '登录后管理您的报名申请。') }}</p>
+  <div ref="root">
+    <section class="page-hero" :style="{ '--page-hero-image': 'url(/assets/hero-seminar.png)' }">
+      <div class="page-hero-inner reveal">
+        <p class="school-label">{{ t('Parent Portal', '家长门户') }}</p>
+        <h1>{{ t('Sign in to your account', '登录您的账户') }}</h1>
+        <p>{{ t('Access your application status, entrance permits, and admission results.', '查看报名状态、准考证和录取结果。') }}</p>
+      </div>
+    </section>
 
-      <form @submit.prevent="handleLogin" class="auth-form">
-        <div class="form-group">
-          <label>{{ t('Email', '邮箱') }}</label>
-          <input v-model="form.email" type="email" required :placeholder="t('Enter your email', '请输入邮箱')" />
+    <section class="auth-workspace">
+      <form class="auth-form reveal" @submit.prevent="handleLogin">
+        <div class="panel-heading">
+          <p class="eyebrow">{{ t('Sign In', '登录') }}</p>
+          <h2>{{ t('Welcome back', '欢迎回来') }}</h2>
         </div>
-        <div class="form-group">
-          <label>{{ t('Password', '密码') }}</label>
-          <input v-model="form.password" type="password" required :placeholder="t('Enter your password', '请输入密码')" />
+
+        <div v-if="msg" :class="['auth-msg', msgType]">{{ msg }}</div>
+
+        <div class="form-section">
+          <div class="form-grid">
+            <label class="field wide"><span>{{ t('Email', '邮箱') }}</span><input v-model="form.email" type="email" :placeholder="t('Email address', '请输入邮箱')" required /></label>
+            <label class="field wide"><span>{{ t('Password', '密码') }}</span><input v-model="form.password" type="password" :placeholder="t('Your password', '请输入密码')" required /></label>
+          </div>
         </div>
 
-        <p v-if="error" class="form-error">{{ error }}</p>
-        <p v-if="success" class="form-success">{{ success }}</p>
-
-        <button type="submit" class="btn btn-primary form-submit" :disabled="loading">
-          {{ loading ? t('Logging in...', '登录中...') : t('Log In', '登录') }}
-        </button>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" :disabled="loading">{{ loading ? t('Signing in...', '登录中...') : t('Sign In', '登录') }}</button>
+        </div>
+        <p class="auth-links">{{ t("Don't have an account?", '还没有账户？') }} <router-link to="/register">{{ t('Create one', '去注册') }}</router-link></p>
       </form>
 
-      <p class="auth-switch">
-        {{ t("Don't have an account?", '还没有账号？') }}
-        <router-link to="/register">{{ t('Register', '注册') }}</router-link>
-      </p>
-    </div>
-  </section>
+      <aside class="auth-side reveal">
+        <h3>{{ t('New to Xinhang?', '初次了解新航？') }}</h3>
+        <p>{{ t('Create an account to track applications, download entrance permits, and check admission results.', '注册账户以跟踪报名、下载准考证和查询录取结果。') }}</p>
+        <router-link class="btn btn-primary" to="/register">{{ t('Register Now', '立即注册') }}</router-link>
+        <router-link class="btn btn-light" to="/apply" style="margin-top:8px">{{ t('Apply Without Account', '无需账户直接报名') }}</router-link>
+      </aside>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useLanguage } from '../composables/useLanguage'
+import { useLanguage } from '../composables/useLanguage.js'
+import { useReveal } from '../composables/useReveal.js'
+import { useAuth } from '../composables/useAuth.js'
 
 const { t } = useLanguage()
+const { setAuth } = useAuth()
 const router = useRouter()
+const root = ref(null)
+useReveal(root)
 
-const form = reactive({ email: '', password: '' })
-const error = ref('')
-const success = ref('')
+const form = ref({ email: '', password: '' })
+const msg = ref('')
+const msgType = ref('error')
 const loading = ref(false)
 
 async function handleLogin() {
-  error.value = ''
   loading.value = true
+  msg.value = ''
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(form.value)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || 'Login failed')
-    localStorage.setItem('xinhang-token', data.token)
-    success.value = t('Login successful!', '登录成功！')
-    setTimeout(() => router.push('/'), 1000)
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
+    if (res.ok) {
+      setAuth(data.token, data.user)
+      router.push('/apply')
+    } else {
+      msgType.value = 'error'
+      msg.value = data.error || t('Login failed', '登录失败')
+    }
+  } catch {
+    msgType.value = 'error'
+    msg.value = t('Network error', '网络错误')
   }
+  loading.value = false
 }
 </script>

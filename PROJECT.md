@@ -12,11 +12,13 @@
 |------|------|------|
 | 静态 HTML 官网 | ✅ 已完成 | 原始 6 个页面，已部署在上码（现已弃用） |
 | Vue3 前端改造 | ✅ 已完成 | 6 个页面迁移 + 注册/登录/报名 3 个新页面 |
-| Sealos 服务器 | ✅ 已创建 | Go 开发环境已建好 |
-| Sealos PostgreSQL | ✅ 已创建 | 数据库实例已建好，需配置连接 |
-| Go 后端 | ❌ 未开始 | 需要在 Sealos 服务器上搭建 |
-| 前后端联调 | ❌ 未开始 | 前端已预留 /api/* 接口 |
-| 生产部署 | ❌ 未开始 | 前端打包 + Nginx + Go 服务 |
+| Sealos 服务器 | ✅ 已创建 | Go 开发环境已建好，已装 Go 1.22 + Node 22 |
+| Sealos PostgreSQL | ✅ 已连接 | xinhang 数据库已建，users + applications 表已自动创建 |
+| Sealos Redis | ✅ 已连接 | 用于缓存和 API 限流 |
+| 异步消息队列 | ✅ 已完成 | Redis Streams 替代 Kafka（Kafka 在 Sealos 有 Operator bug） |
+| Go 后端 | ✅ 已完成 | Gin + GORM + Redis + Redis Streams |
+| 前后端联调 | ✅ 已完成 | 注册/登录/报名/管理员列表 4 个 API 全部测试通过 |
+| 生产部署 | ✅ 运行中 | Go serve 前端 dist（方案 A），8080 端口运行中 |
 
 ---
 
@@ -205,18 +207,55 @@ postgresql://postgres:PASSWORD@HOST:5432/xinhang?sslmode=disable
 
 ---
 
+## 已完成待办
+
+1. ✅ SSH 连接 Sealos 服务器（通过 Cursor Remote）
+2. ✅ 从 GitHub 拉取代码到服务器
+3. ✅ 在服务器上安装 Node.js 22 + Go 1.22
+4. ✅ 搭建 Go 后端项目（Gin + GORM + Redis + Redis Streams）
+5. ✅ 创建数据库 xinhang + 自动建表（users, applications）
+6. ✅ 实现 4 个 API 接口（注册/登录/报名/管理列表）
+7. ✅ 前端打包 `npm run build` → dist/
+8. ✅ Go 后端 serve 前端 dist + API（方案 A 一体部署）
+9. ✅ 端到端测试（注册 → 登录 → 报名 → 后台查看）
+10. ✅ Redis 连接（缓存 + 限流）
+11. ✅ 管理员账号创建（test@example.com / 123456）
+
 ## 下一步待办
 
-1. ⬜ SSH 连接 Sealos 服务器
-2. ⬜ 从 GitHub 拉取代码到服务器
-3. ⬜ 在服务器上安装 Node.js（用于打包前端）
-4. ⬜ 搭建 Go 后端项目（Gin + pgx/gorm）
-5. ⬜ 创建数据库表（users, applications）
-6. ⬜ 实现 4 个 API 接口
-7. ⬜ 前端打包 `npm run build`
-8. ⬜ Go 后端 serve 前端 dist + API
-9. ⬜ 配置 Sealos 外网访问（域名/端口）
-10. ⬜ 端到端测试（注册 → 登录 → 报名 → 后台查看）
+1. ✅ ~~Kafka~~ → 已用 Redis Streams 替代（Sealos Kafka Operator 有 advertised listener bug，broker 无法启动）
+2. ⬜ 配置 Sealos 外网访问（域名/端口）
+3. ⬜ 升级 PostgreSQL 资源（4C/4GB/2实例）
+4. ⬜ 正式域名绑定
+5. ⬜ 清理测试数据（压测/E2E 产生的测试用户和报名）
+
+## 管理员账号
+
+- 邮箱：`test@example.com`
+- 密码：`123456`
+- 登录后用 token 访问 `GET /api/applications` 可查看所有报名
+
+## 后端架构
+
+```
+backend/
+├── main.go              # 入口：整合所有组件 + gzip 压缩
+├── config/config.go     # 统一配置（DB/Redis）
+├── database/database.go # 连接池（maxOpen=100, maxIdle=20）
+├── cache/redis.go       # Redis 缓存 + 限流
+├── queue/kafka.go       # Redis Streams 异步消息队列（已从 Kafka 迁移）
+├── middleware/
+│   ├── auth.go          # JWT 鉴权 + 管理员权限
+│   └── ratelimit.go     # Redis 限流中间件
+├── handlers/
+│   ├── auth.go          # 注册(10/min) + 登录(20/min)
+│   └── application.go   # 报名(5/min, Redis Stream异步) + 列表
+└── models/              # User + Application 数据模型
+```
+
+## 环境变量 (.env)
+
+详见 `backend/.env.example`
 
 ---
 
@@ -230,4 +269,5 @@ postgresql://postgres:PASSWORD@HOST:5432/xinhang?sslmode=disable
 ---
 
 *文档创建时间：2026-06-21*
-*当前阶段：Vue3 前端已完成，准备在 Sealos 上搭建 Go 后端*
+*最后更新：2026-06-22*
+*当前阶段：后端全部完成（Redis + Redis Streams），等待外网开放和域名绑定*

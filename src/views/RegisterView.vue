@@ -1,84 +1,122 @@
 <template>
-  <section class="auth-page">
-    <div class="auth-card">
-      <h1>{{ t('Create Account', '注册账号') }}</h1>
-      <p class="auth-subtitle">{{ t('Register to explore campus and apply for admission.', '注册后可浏览校园信息并提交报名申请。') }}</p>
+  <div ref="root">
+    <section class="page-hero" :style="{ '--page-hero-image': 'url(/assets/campus-blossom.jpg)' }">
+      <div class="page-hero-inner reveal">
+        <p class="school-label">{{ t('Account Registration', '账户注册') }}</p>
+        <h1>{{ t('Create your account', '创建您的账户') }}</h1>
+        <p>{{ t('Register to manage applications, track admission status, and access the parent portal.', '注册账户以管理报名信息、跟踪录取状态，并访问家长门户。') }}</p>
+      </div>
+    </section>
 
-      <form @submit.prevent="handleRegister" class="auth-form">
-        <div class="form-group">
-          <label>{{ t('Full Name', '姓名') }}</label>
-          <input v-model="form.name" type="text" required :placeholder="t('Enter your name', '请输入姓名')" />
-        </div>
-        <div class="form-group">
-          <label>{{ t('Email', '邮箱') }}</label>
-          <input v-model="form.email" type="email" required :placeholder="t('Enter your email', '请输入邮箱')" />
-        </div>
-        <div class="form-group">
-          <label>{{ t('Phone', '手机号') }}</label>
-          <input v-model="form.phone" type="tel" required :placeholder="t('Enter your phone number', '请输入手机号')" />
-        </div>
-        <div class="form-group">
-          <label>{{ t('Password', '密码') }}</label>
-          <input v-model="form.password" type="password" required minlength="6" :placeholder="t('At least 6 characters', '至少6位字符')" />
-        </div>
-        <div class="form-group">
-          <label>{{ t('Confirm Password', '确认密码') }}</label>
-          <input v-model="form.confirmPassword" type="password" required :placeholder="t('Re-enter password', '请再次输入密码')" />
+    <section class="auth-workspace">
+      <form class="auth-form reveal" @submit.prevent="handleRegister">
+        <div class="panel-heading">
+          <p class="eyebrow">{{ t('New Account', '新账户') }}</p>
+          <h2>{{ t('Registration', '注册') }}</h2>
         </div>
 
-        <p v-if="error" class="form-error">{{ error }}</p>
-        <p v-if="success" class="form-success">{{ success }}</p>
+        <div v-if="msg" :class="['auth-msg', msgType]">{{ msg }}</div>
 
-        <button type="submit" class="btn btn-primary form-submit" :disabled="loading">
-          {{ loading ? t('Registering...', '注册中...') : t('Register', '注册') }}
-        </button>
+        <div class="form-section">
+          <div class="form-grid">
+            <label class="field"><span>{{ t('Full Name', '姓名') }}</span><input v-model="form.name" type="text" :placeholder="t('Your full name', '请输入姓名')" required /></label>
+            <label class="field"><span>{{ t('Phone', '手机号') }}</span><input v-model="form.phone" type="tel" :placeholder="t('Mobile phone', '请输入手机号')" required /></label>
+            <label class="field wide">
+              <span>{{ t('Email', '邮箱') }}</span>
+              <div class="code-row">
+                <input v-model="form.email" type="email" :placeholder="t('Email address', '请输入邮箱')" required />
+                <button class="btn btn-secondary" type="button" @click="sendCode" :disabled="codeCd > 0">
+                  {{ codeCd > 0 ? `${codeCd}s` : t('Send Code', '发送验证码') }}
+                </button>
+              </div>
+            </label>
+            <label class="field"><span>{{ t('Verification Code', '验证码') }}</span><input v-model="form.code" type="text" :placeholder="t('6-digit code', '6位验证码')" required maxlength="6" /></label>
+            <label class="field"><span>{{ t('Password', '密码') }}</span><input v-model="form.password" type="password" :placeholder="t('At least 6 characters', '至少6位字符')" required minlength="6" /></label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" :disabled="loading">{{ loading ? t('Registering...', '注册中...') : t('Create Account', '注册') }}</button>
+        </div>
+        <p class="auth-links">{{ t('Already have an account?', '已有账户？') }} <router-link to="/login">{{ t('Sign in', '去登录') }}</router-link></p>
       </form>
 
-      <p class="auth-switch">
-        {{ t('Already have an account?', '已有账号？') }}
-        <router-link to="/login">{{ t('Log in', '登录') }}</router-link>
-      </p>
-    </div>
-  </section>
+      <aside class="auth-side reveal">
+        <h3>{{ t('Why Register?', '为什么要注册？') }}</h3>
+        <p>{{ t('Track your application status and receive updates directly.', '跟踪报名状态，直接接收最新通知。') }}</p>
+        <p>{{ t('Manage multiple student applications from one account.', '一个账户管理多个学生的报名信息。') }}</p>
+        <p>{{ t('Access admission results and entrance permit downloads.', '查询录取结果，下载电子准考证。') }}</p>
+        <router-link class="btn btn-light" to="/apply">{{ t('Apply Without Account', '无需账户直接报名') }}</router-link>
+      </aside>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useLanguage } from '../composables/useLanguage'
+import { useLanguage } from '../composables/useLanguage.js'
+import { useReveal } from '../composables/useReveal.js'
+import { useAuth } from '../composables/useAuth.js'
 
 const { t } = useLanguage()
+const { setAuth } = useAuth()
 const router = useRouter()
+const root = ref(null)
+useReveal(root)
 
-const form = reactive({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
-const error = ref('')
-const success = ref('')
+const form = ref({ name: '', email: '', phone: '', password: '', code: '' })
+const msg = ref('')
+const msgType = ref('success')
 const loading = ref(false)
+const codeCd = ref(0)
+let cdTimer = null
+
+async function sendCode() {
+  if (!form.value.email) { msg.value = t('Please enter email first', '请先输入邮箱'); msgType.value = 'error'; return }
+  try {
+    const res = await fetch('/api/send-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: form.value.email })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      msgType.value = 'success'
+      msg.value = t('Verification code sent to your email', '验证码已发送到您的邮箱')
+      codeCd.value = 60
+      cdTimer = setInterval(() => { codeCd.value--; if (codeCd.value <= 0) clearInterval(cdTimer) }, 1000)
+    } else {
+      msgType.value = 'error'
+      msg.value = data.error || t('Failed to send code', '发送失败')
+    }
+  } catch {
+    msgType.value = 'error'
+    msg.value = t('Network error', '网络错误')
+  }
+}
 
 async function handleRegister() {
-  error.value = ''
-  success.value = ''
-
-  if (form.password !== form.confirmPassword) {
-    error.value = t('Passwords do not match.', '两次密码不一致。')
-    return
-  }
-
   loading.value = true
+  msg.value = ''
   try {
     const res = await fetch('/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, password: form.password }),
+      body: JSON.stringify(form.value)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || 'Registration failed')
-    success.value = t('Registration successful! Redirecting...', '注册成功！正在跳转...')
-    setTimeout(() => router.push('/login'), 1500)
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
+    if (res.ok) {
+      setAuth(data.token, data.user)
+      router.push('/apply')
+    } else {
+      msgType.value = 'error'
+      msg.value = data.error || t('Registration failed', '注册失败')
+    }
+  } catch {
+    msgType.value = 'error'
+    msg.value = t('Network error', '网络错误')
   }
+  loading.value = false
 }
 </script>

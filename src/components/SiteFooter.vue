@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
     <div class="footer-brand">
-      <img src="/images/school-name-white.png" alt="山东新航实验国际学校" />
+      <img src="/assets/school-name-white.png" alt="山东新航实验国际学校" />
       <p>{{ t('Shandong Xinhang Experimental International School', '山东新航实验国际学校') }}</p>
     </div>
     <div class="footer-links">
@@ -15,6 +15,6 @@
 </template>
 
 <script setup>
-import { useLanguage } from '../composables/useLanguage'
+import { useLanguage } from '../composables/useLanguage.js'
 const { t } = useLanguage()
 </script>

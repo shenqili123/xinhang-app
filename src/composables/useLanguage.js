@@ -1,24 +1,21 @@
-import { ref, watch } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 
-const language = ref(readPreferred())
+const lang = ref(readStorage())
 
-function readPreferred() {
-  try { return localStorage.getItem('xinhang-language') === 'zh' ? 'zh' : 'en' }
-  catch { return 'en' }
+function readStorage() {
+  try {
+    return localStorage.getItem('xinhang-language') === 'zh' ? 'zh' : 'en'
+  } catch { return 'en' }
 }
 
-function writePreferred(lang) {
-  try { localStorage.setItem('xinhang-language', lang) } catch {}
-}
-
-watch(language, (val) => {
-  writePreferred(val)
-  document.documentElement.lang = val === 'zh' ? 'zh-CN' : 'en'
-}, { immediate: true })
+watchEffect(() => {
+  document.documentElement.lang = lang.value === 'zh' ? 'zh-CN' : 'en'
+  try { localStorage.setItem('xinhang-language', lang.value) } catch {}
+})
 
 export function useLanguage() {
-  const toggle = () => { language.value = language.value === 'zh' ? 'en' : 'zh' }
-  const isChinese = () => language.value === 'zh'
-  const t = (en, zh) => language.value === 'zh' ? zh : en
-  return { language, toggle, isChinese, t }
+  const isChinese = computed(() => lang.value === 'zh')
+  const t = (en, zh) => lang.value === 'zh' ? zh : en
+  const toggle = () => { lang.value = lang.value === 'zh' ? 'en' : 'zh' }
+  return { lang, isChinese, t, toggle }
 }

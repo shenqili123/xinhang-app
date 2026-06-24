@@ -1,19 +1,21 @@
 {
   "name": "xinhang-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
-  },
-  "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.0.12"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.7",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "vue": "^3.5.13",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "vite": "^8.0.12"
   }
 }

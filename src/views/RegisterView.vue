@@ -43,10 +43,9 @@
 
       <aside class="auth-side reveal">
         <h3>{{ t('Why Register?', '为什么要注册？') }}</h3>
+        <p>{{ t('Registration is required before applying. Register once and manage all applications from your account.', '报名前需要先注册账户。注册后可在一个账户中管理所有报名信息。') }}</p>
         <p>{{ t('Track your application status and receive updates directly.', '跟踪报名状态，直接接收最新通知。') }}</p>
-        <p>{{ t('Manage multiple student applications from one account.', '一个账户管理多个学生的报名信息。') }}</p>
         <p>{{ t('Access admission results and entrance permit downloads.', '查询录取结果，下载电子准考证。') }}</p>
-        <router-link class="btn btn-light" to="/apply">{{ t('Apply Without Account', '无需账户直接报名') }}</router-link>
       </aside>
     </section>
   </div>
@@ -54,7 +53,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useLanguage } from '../composables/useLanguage.js'
 import { useReveal } from '../composables/useReveal.js'
 import { useAuth } from '../composables/useAuth.js'
@@ -62,6 +61,7 @@ import { useAuth } from '../composables/useAuth.js'
 const { t } = useLanguage()
 const { setAuth } = useAuth()
 const router = useRouter()
+const route = useRoute()
 const root = ref(null)
 useReveal(root)
 
@@ -88,7 +88,7 @@ async function sendCode() {
       cdTimer = setInterval(() => { codeCd.value--; if (codeCd.value <= 0) clearInterval(cdTimer) }, 1000)
     } else {
       msgType.value = 'error'
-      msg.value = data.error || t('Failed to send code', '发送失败')
+      msg.value = data.message || t('Failed to send code', '发送失败')
     }
   } catch {
     msgType.value = 'error'
@@ -108,10 +108,11 @@ async function handleRegister() {
     const data = await res.json()
     if (res.ok) {
       setAuth(data.token, data.user)
-      router.push('/apply')
+      const redirect = route.query.redirect || '/profile'
+      router.push(redirect)
     } else {
       msgType.value = 'error'
-      msg.value = data.error || t('Registration failed', '注册失败')
+      msg.value = data.message || t('Registration failed', '注册失败')
     }
   } catch {
     msgType.value = 'error'

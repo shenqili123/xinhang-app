@@ -66,9 +66,23 @@ func main() {
 		)
 		api.POST("/apply",
 			middleware.RateLimit(5, time.Minute),
-			optionalAuth(cfg.JWTSecret),
+			middleware.JWTAuth(cfg.JWTSecret),
 			handlers.Apply,
 		)
+
+		api.GET("/profile",
+			middleware.JWTAuth(cfg.JWTSecret),
+			handlers.GetProfile,
+		)
+		api.PUT("/profile",
+			middleware.JWTAuth(cfg.JWTSecret),
+			handlers.UpdateProfile,
+		)
+		api.GET("/my-applications",
+			middleware.JWTAuth(cfg.JWTSecret),
+			handlers.MyApplications,
+		)
+
 		api.GET("/applications",
 			middleware.JWTAuth(cfg.JWTSecret),
 			middleware.AdminOnly(),
@@ -116,17 +130,6 @@ func main() {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 	log.Println("Server exited")
-}
-
-func optionalAuth(secret string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		auth := c.GetHeader("Authorization")
-		if auth == "" {
-			c.Next()
-			return
-		}
-		middleware.JWTAuth(secret)(c)
-	}
 }
 
 func maxBodySize(n int64) gin.HandlerFunc {

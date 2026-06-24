@@ -20,6 +20,27 @@ func SetJWTSecret(secret string) {
 	jwtSecret = []byte(secret)
 }
 
+func generateToken(user *models.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId": user.ID,
+		"role":   user.Role,
+		"exp":    time.Now().Add(72 * time.Hour).Unix(),
+	})
+	return token.SignedString(jwtSecret)
+}
+
+func userResponse(user *models.User) gin.H {
+	return gin.H{
+		"id":            user.ID,
+		"name":          user.Name,
+		"email":         user.Email,
+		"phone":         user.Phone,
+		"role":          user.Role,
+		"emailVerified": user.EmailVerified,
+		"createdAt":     user.CreatedAt,
+	}
+}
+
 func Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +77,7 @@ func Register(c *gin.Context) {
 		Phone:         req.Phone,
 		PasswordHash:  string(hash),
 		Role:          "user",
-		EmailVerified: email.IsEnabled(),
+		EmailVerified: req.Code != "",
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -64,7 +85,17 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "注册成功"})
+	tokenString, err := generateToken(&user)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "注册成功，请登录"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "注册成功",
+		"token":   tokenString,
+		"user":    userResponse(&user),
+	})
 }
 
 func Login(c *gin.Context) {
@@ -96,13 +127,7 @@ func Login(c *gin.Context) {
 
 	middleware.ClearLoginFail(ip, req.Email)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": user.ID,
-		"role":   user.Role,
-		"exp":    time.Now().Add(72 * time.Hour).Unix(),
-	})
-
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := generateToken(&user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "生成 token 失败"})
 		return
@@ -111,5 +136,76 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "登录成功",
 		"token":   tokenString,
+		"user":    userResponse(&user),
+	})
+}
+
+func GetProfile(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "用户不存在"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"user": userResponse(&user)})
+}
+
+func UpdateProfile(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "用户不存在"})
+		return
+	}
+
+	var req map[string]string
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "参数格式错误"})
+		return
+	}
+
+	updates := map[string]interface{}{}
+	if name, ok := req["name"]; ok && name != "" && len(name) <= 100 {
+		updates["name"] = name
+	}
+	if phone, ok := req["phone"]; ok && phone != "" && len(phone) <= 20 {
+		updates["phone"] = phone
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "没有需要更新的信息",
+			"user":    userResponse(&user),
+		})
+		return
+	}
+
+	if err := database.DB.Model(&user).Updates(updates).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "更新失败"})
+		return
+	}
+
+	database.DB.First(&user, userID)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "更新成功",
+		"user":    userResponse(&user),
+	})
+}
+
+func MyApplications(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
+	var apps []models.Application
+	if err := database.DB.Where("user_id = ?", userID).
+		Order("created_at DESC").
+		Find(&apps).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取报名列表失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data":    apps,
+		"total":   len(apps),
 	})
 }

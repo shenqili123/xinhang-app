@@ -10,6 +10,8 @@
       <router-link to="/academics">{{ t('Academics', '学术课程') }}</router-link>
       <router-link to="/campus">{{ t('Campus', '校园') }}</router-link>
       <router-link to="/student-life">{{ t('Student Life', '学生生活') }}</router-link>
+      <router-link to="/apply">{{ t('Apply', '报名') }}</router-link>
+      <router-link to="/login">{{ t('Sign In', '登录') }}</router-link>
     </div>
   </footer>
 </template>

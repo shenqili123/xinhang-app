@@ -8,10 +8,14 @@ export function useAuth() {
   const isAdmin = computed(() => user.value?.role === 'admin')
 
   function setAuth(t, u) {
-    token.value = t
-    user.value = u
-    localStorage.setItem('token', t)
-    localStorage.setItem('user', JSON.stringify(u))
+    if (t !== undefined) {
+      token.value = t
+      localStorage.setItem('token', t)
+    }
+    if (u !== undefined) {
+      user.value = u
+      localStorage.setItem('user', JSON.stringify(u))
+    }
   }
 
   function logout() {

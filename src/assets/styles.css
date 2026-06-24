@@ -2352,3 +2352,48 @@ html[lang="zh-CN"] .hero h1 span {
     padding: 36px 24px;
   }
 }
+
+/* ============ Header Auth UI ============ */
+
+.user-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, var(--signal), var(--signal-2));
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.logout-link {
+  opacity: .78;
+  transition: opacity .2s ease;
+}
+
+.logout-link:hover {
+  opacity: 1;
+  color: var(--coral) !important;
+}
+
+.nav-auth-mobile,
+.nav-user-mobile,
+.nav-logout-mobile {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.nav-logout-mobile {
+  color: var(--coral) !important;
+  border-bottom: 0;
+}

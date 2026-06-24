@@ -32,7 +32,12 @@ func Connect(cfg *config.Config) {
 
 	log.Printf("Database connected (maxOpen=%d, maxIdle=%d)", cfg.DBMaxConns, cfg.DBIdleConns)
 
-	if err = DB.AutoMigrate(&models.User{}, &models.Application{}); err != nil {
+	if err = DB.AutoMigrate(
+		&models.User{},
+		&models.Application{},
+		&models.News{},
+		&models.Notification{},
+	); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 	log.Println("Database migration completed")

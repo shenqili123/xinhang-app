@@ -181,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLanguage } from '../composables/useLanguage.js'
 import { useReveal } from '../composables/useReveal.js'
@@ -190,7 +190,7 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
 const { t } = useLanguage()
-const { authHeader } = useAuth()
+const { user, authHeader, logout } = useAuth()
 const router = useRouter()
 const root = ref(null)
 useReveal(root)
@@ -200,6 +200,14 @@ const form = ref({
   idNumber: '', boardingNeed: 'boarding',
   parentName: '', phone: '', relationship: 'Parent', email: '',
   track: 'integrated', visitDate: '', notes: ''
+})
+
+onMounted(() => {
+  if (user.value) {
+    form.value.parentName = user.value.name || ''
+    form.value.phone = user.value.phone || ''
+    form.value.email = user.value.email || ''
+  }
 })
 const consent = ref(false)
 const submitting = ref(false)
@@ -274,6 +282,9 @@ async function submitForm() {
       }
       submitted.value = true
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else if (res.status === 401) {
+      logout()
+      router.push({ name: 'Login', query: { redirect: '/apply' } })
     } else {
       showError(data.message || t('Submission failed', '提交失败'))
     }

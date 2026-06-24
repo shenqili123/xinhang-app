@@ -41,10 +41,9 @@ func Apply(c *gin.Context) {
 		Status:        "pending",
 	}
 
-	if userID, exists := c.Get("userID"); exists {
-		uid := userID.(uint)
-		app.UserID = &uid
-	}
+	userID, _ := c.Get("userID")
+	uid := userID.(uint)
+	app.UserID = &uid
 
 	var count int64
 	database.DB.Model(&models.Application{}).

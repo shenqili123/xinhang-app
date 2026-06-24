@@ -34,7 +34,6 @@
         <h3>{{ t('New to Xinhang?', '初次了解新航？') }}</h3>
         <p>{{ t('Create an account to track applications, download entrance permits, and check admission results.', '注册账户以跟踪报名、下载准考证和查询录取结果。') }}</p>
         <router-link class="btn btn-primary" to="/register">{{ t('Register Now', '立即注册') }}</router-link>
-        <router-link class="btn btn-light" to="/apply" style="margin-top:8px">{{ t('Apply Without Account', '无需账户直接报名') }}</router-link>
       </aside>
     </section>
   </div>
@@ -42,7 +41,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useLanguage } from '../composables/useLanguage.js'
 import { useReveal } from '../composables/useReveal.js'
 import { useAuth } from '../composables/useAuth.js'
@@ -50,6 +49,7 @@ import { useAuth } from '../composables/useAuth.js'
 const { t } = useLanguage()
 const { setAuth } = useAuth()
 const router = useRouter()
+const route = useRoute()
 const root = ref(null)
 useReveal(root)
 
@@ -70,10 +70,11 @@ async function handleLogin() {
     const data = await res.json()
     if (res.ok) {
       setAuth(data.token, data.user)
-      router.push('/apply')
+      const redirect = route.query.redirect || '/profile'
+      router.push(redirect)
     } else {
       msgType.value = 'error'
-      msg.value = data.error || t('Login failed', '登录失败')
+      msg.value = data.message || t('Login failed', '登录失败')
     }
   } catch {
     msgType.value = 'error'

@@ -1,0 +1,15 @@
+[Unit]
+Description=Xinhang School Website Backend
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/data/xinhang-app/backend
+ExecStart=/data/xinhang-app/backend/xinhang-backend
+Restart=always
+RestartSec=5
+Environment=GIN_MODE=release
+
+[Install]
+WantedBy=multi-user.target

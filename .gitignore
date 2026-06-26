@@ -2,3 +2,13 @@ node_modules/
 dist/
 .DS_Store
 *.local
+
+# 部署包中的大文件/二进制文件（通过U盘传递，不放git）
+xinhang-deploy/app/xinhang-backend
+xinhang-deploy/app/dist/
+xinhang-deploy/data/news-images.tar
+xinhang-deploy/offline-packages/*.deb
+
+# 打包生成的压缩文件
+xinhang-deploy-no-images.zip
+xinhang-deploy-no-images.tar.gz

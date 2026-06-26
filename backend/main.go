@@ -44,7 +44,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
-	r.Use(maxBodySize(1 << 20)) // 1MB
+	r.Use(maxBodySize(6 << 20)) // 6MB for photo uploads
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -88,10 +88,40 @@ func main() {
 			middleware.AdminOnly(),
 			handlers.ListApplications,
 		)
+		api.POST("/upload-photo",
+			middleware.RateLimit(10, time.Minute),
+			middleware.JWTAuth(cfg.JWTSecret),
+			handlers.UploadPhoto,
+		)
 		api.GET("/permit-qr", handlers.GeneratePermitQR)
 		api.POST("/verify-qr", handlers.VerifyPermitQR)
 		api.GET("/verify-qr", handlers.VerifyPermitQRGet)
 		api.GET("/query-permit", handlers.QueryPermit)
+
+		api.GET("/news", handlers.ListNews)
+		api.GET("/news/:id", handlers.GetNews)
+		api.GET("/news-categories", handlers.GetCategories)
+
+		api.POST("/news",
+			middleware.JWTAuth(cfg.JWTSecret),
+			middleware.AdminOnly(),
+			handlers.CreateNews,
+		)
+		api.PUT("/news/:id",
+			middleware.JWTAuth(cfg.JWTSecret),
+			middleware.AdminOnly(),
+			handlers.UpdateNews,
+		)
+		api.DELETE("/news/:id",
+			middleware.JWTAuth(cfg.JWTSecret),
+			middleware.AdminOnly(),
+			handlers.DeleteNews,
+		)
+	}
+
+	if _, err := os.Stat("./uploads"); err == nil {
+		r.Static("/uploads", "./uploads")
+		log.Println("Serving uploads from ./uploads")
 	}
 
 	if _, err := os.Stat("./dist"); err == nil {

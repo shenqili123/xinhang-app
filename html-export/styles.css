@@ -273,10 +273,6 @@ img {
   box-shadow: 0 12px 28px rgba(22, 198, 210, .22);
 }
 
-.nav-mobile-extra {
-  display: none;
-}
-
 .main-nav .nav-apply:hover {
   color: var(--navy);
   transform: translateY(-1px);
@@ -1247,7 +1243,7 @@ img {
   color: #fff;
   background:
     linear-gradient(120deg, rgba(7, 27, 55, .95), rgba(7, 27, 55, .62)),
-    url("/assets/campus-blossom.jpg") center / cover no-repeat;
+    url("assets/campus-blossom.jpg") center / cover no-repeat;
 }
 
 .statement-inner {
@@ -1292,17 +1288,17 @@ img {
 }
 
 .life-img.art {
-  background-image: url("/assets/commencement-walk.jpg");
+  background-image: url("assets/commencement-walk.jpg");
   background-position: center 44%;
 }
 
 .life-img.science {
-  background-image: url("/assets/commencement-atrium.jpg");
+  background-image: url("assets/commencement-atrium.jpg");
   background-position: center 48%;
 }
 
 .life-img.sport {
-  background-image: url("/assets/campus-overview.jpg");
+  background-image: url("assets/campus-overview.jpg");
   background-position: center;
 }
 
@@ -1378,7 +1374,7 @@ img {
   color: #fff;
   background:
     linear-gradient(90deg, rgba(7, 27, 55, .96) 0%, rgba(7, 27, 55, .88) 58%, rgba(7, 27, 55, .62)),
-    url("/assets/campus-academic-building.jpg") center / cover no-repeat;
+    url("assets/campus-academic-building.jpg") center / cover no-repeat;
 }
 
 .admission-section h2,
@@ -1434,7 +1430,7 @@ img {
   color: #fff;
   background:
     linear-gradient(135deg, rgba(7, 27, 55, .98), rgba(13, 42, 82, .94) 58%, rgba(14, 143, 201, .74)),
-    url("/assets/campus-overview.jpg") center / cover no-repeat;
+    url("assets/campus-overview.jpg") center / cover no-repeat;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -1px 0 rgba(255, 255, 255, .08);
 }
 
@@ -1499,7 +1495,7 @@ img {
   color: #fff;
   background:
     linear-gradient(100deg, rgba(7, 27, 55, .96) 0%, rgba(7, 27, 55, .86) 48%, rgba(7, 27, 55, .25)),
-    url("/assets/campus-academic-building.jpg") center / cover no-repeat;
+    url("assets/campus-academic-building.jpg") center / cover no-repeat;
 }
 
 .application-hero-copy {
@@ -2308,41 +2304,25 @@ html[lang="zh-CN"] .hero h1 span {
     top: 76px;
     right: 18px;
     left: 18px;
-    z-index: 9999;
     display: none;
     flex-direction: column;
     gap: 0;
     padding: 14px;
     color: #fff;
-    background: #071b37;
-    box-shadow: 0 18px 46px rgba(0, 0, 0, .5);
-    border-radius: 8px;
+    background: rgba(7, 27, 55, .97);
+    box-shadow: 0 18px 46px rgba(0, 0, 0, .24);
   }
 
   .main-nav.open {
     display: flex;
   }
 
-  .main-nav a,
-  .main-nav > .nav-item > a,
-  .main-nav .nav-item a {
+  .main-nav a {
     min-height: 52px;
     display: grid;
     place-items: center;
     padding: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, .15);
-    color: #ffffff !important;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: .05em;
-  }
-
-  .main-nav a:hover,
-  .main-nav a.nav-link-active,
-  .main-nav > .nav-item > a:hover,
-  .main-nav > .nav-item > a.nav-link-active {
-    color: #16c6d2 !important;
-    background: rgba(22, 198, 210, .1);
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
   }
 
   .main-nav a::after {
@@ -2366,43 +2346,11 @@ html[lang="zh-CN"] .hero h1 span {
     display: none;
   }
 
-  .nav-mobile-extra {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, .2);
-  }
-
-  .nav-mobile-extra a {
-    flex: 1 0 50%;
-    min-height: 44px;
-    display: grid;
-    place-items: center;
-    color: rgba(255, 255, 255, .8) !important;
-    font-size: 13px;
-    font-weight: 700;
-    border-bottom: 1px solid rgba(255, 255, 255, .08);
-  }
-
-  .nav-mobile-extra a:hover {
-    color: #16c6d2 !important;
-  }
-
   .main-nav .nav-apply {
     width: 100%;
     min-height: 52px;
     margin-top: 8px;
     border-bottom: 0;
-    display: grid;
-    place-items: center;
-    color: #071b37 !important;
-    background: linear-gradient(135deg, #16c6d2, #4fd1c5);
-    border-radius: 6px;
-    font-weight: 900;
   }
 
   .hero-copy {
@@ -2528,23 +2476,16 @@ html[lang="zh-CN"] .hero h1 span {
   .application-subnav {
     position: relative;
     top: auto;
-    justify-content: stretch;
+    justify-content: flex-start;
     padding: 0;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .application-subnav::-webkit-scrollbar {
-    display: none;
   }
 
   .application-subnav a {
-    flex: 1 0 auto;
+    min-width: 116px;
     min-height: 50px;
     padding: 0 14px;
     white-space: nowrap;
-    font-size: 13px;
   }
 
   .application-workspace {
@@ -2763,22 +2704,12 @@ html[lang="zh-CN"] .hero h1 span {
     font-size: 32px;
   }
 
-  .application-quickfacts {
-    grid-template-columns: 1fr;
-  }
-
   .application-quickfacts dd {
     font-size: 14px;
   }
 
   .application-quickfacts dt {
     font-size: 10px;
-  }
-
-  .application-subnav a {
-    min-width: max-content;
-    padding: 0 10px;
-    font-size: 12px;
   }
 
   .permit-head {

@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -12,6 +14,41 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var idNumberRegex = regexp.MustCompile(`^\d{17}[\dXx]$`)
+
+func validateIDNumber(id string) bool {
+	if len(id) != 18 {
+		return false
+	}
+	if !idNumberRegex.MatchString(id) {
+		return false
+	}
+	weights := []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
+	checkCodes := "10X98765432"
+	sum := 0
+	for i := 0; i < 17; i++ {
+		sum += int(id[i]-'0') * weights[i]
+	}
+	expected := checkCodes[sum%11]
+	last := id[17]
+	if last == 'x' {
+		last = 'X'
+	}
+	return last == expected
+}
+
+func assignExamRoomAndSeat(grade int) (string, string) {
+	var totalInGrade int64
+	database.DB.Model(&models.Application{}).Where("grade = ?", grade).Count(&totalInGrade)
+	seatsPerRoom := 30
+	room := int(totalInGrade)/seatsPerRoom + 1
+	seat := int(totalInGrade)%seatsPerRoom + 1
+	if seat == 0 {
+		seat = rand.Intn(30) + 1
+	}
+	return fmt.Sprintf("%02d", room), fmt.Sprintf("%02d", seat)
+}
+
 func Apply(c *gin.Context) {
 	var req models.ApplyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -19,16 +56,26 @@ func Apply(c *gin.Context) {
 		return
 	}
 
+	if !validateIDNumber(req.IDNumber) {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "身份证号格式不正确，请输入18位有效身份证号码"})
+		return
+	}
+
 	now := time.Now()
 	permitNo := fmt.Sprintf("XH%s%04d", now.Format("20060102"), now.UnixMilli()%10000)
+	examRoom, seatNumber := assignExamRoomAndSeat(req.Grade)
 
 	app := models.Application{
 		PermitNo:      permitNo,
 		StudentName:   req.StudentName,
 		BirthDate:     req.BirthDate,
 		Gender:        req.Gender,
+		Division:      req.Division,
 		Grade:         req.Grade,
 		IDNumber:      req.IDNumber,
+		Photo:         req.Photo,
+		ExamRoom:      examRoom,
+		SeatNumber:    seatNumber,
 		BoardingNeed:  req.BoardingNeed,
 		ParentName:    req.ParentName,
 		Phone:         req.Phone,
@@ -60,9 +107,12 @@ func Apply(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "报名申请已提交成功",
-		"id":       app.ID,
-		"permitNo": app.PermitNo,
+		"message":    "报名申请已提交成功",
+		"id":         app.ID,
+		"permitNo":   app.PermitNo,
+		"examRoom":   app.ExamRoom,
+		"seatNumber": app.SeatNumber,
+		"photo":      app.Photo,
 	})
 }
 

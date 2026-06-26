@@ -2,33 +2,69 @@
   <div ref="root">
     <section class="hero" aria-label="学校首屏介绍">
       <div class="hero-copy reveal">
-        <p class="school-label">{{ t('Shandong Xinhang Experimental International School', '山东新航实验国际学校') }}</p>
-        <h1 v-html="t('<span>Learn Deeply</span><span>Lead Wisely</span>', '<span>博学日新</span><span>德行天下</span>')"></h1>
+        <h1><span>{{ t('Learn Deeply', '博学日新') }}</span><span>{{ t('Lead Wisely', '德行天下') }}</span></h1>
         <p class="hero-lede">{{ t('Academic rigor. Character formation. Global outlook.', '扎实学术 · 成熟人格 · 全球视野') }}</p>
         <div class="hero-actions">
-          <router-link class="btn btn-primary" to="/admission#visit">{{ t('Schedule a Visit', '预约探校') }}</router-link>
+          <router-link class="btn btn-primary" to="/apply">{{ t('Apply Now', '立即报名') }}</router-link>
           <router-link class="btn btn-secondary" to="/academics">{{ t('Explore Academics', '探索课程') }}</router-link>
         </div>
       </div>
+
       <figure class="hero-visual reveal">
-        <img src="/assets/campus-overview.jpg" alt="Aerial view of campus" />
+        <img src="/assets/campus-overview.jpg" alt="Aerial view of Jinan Xinhang Experimental Foreign Language School campus" />
         <figcaption>
           <strong>{{ t('Campus at a Glance', '新航校园') }}</strong>
           <span>{{ t('A hillside campus built for serious learning and student growth.', '依山而建 · 面向世界') }}</span>
         </figcaption>
       </figure>
+
+      <nav class="hero-portals" aria-label="Explore Xinhang">
+        <router-link class="hero-portal reveal" to="/student-life">
+          <img src="/assets/commencement-class.jpg" alt="Xinhang graduates celebrating together" />
+          <span class="hero-portal-copy">
+            <small>{{ t('Beyond the Classroom', '课堂之外') }}</small>
+            <strong>{{ t('Student Life', '学生生活') }}</strong>
+            <em>{{ t('Leadership, belonging and memorable traditions', '领导力、归属感与校园传统') }}</em>
+          </span>
+          <span class="hero-portal-arrow" aria-hidden="true">→</span>
+        </router-link>
+        <router-link class="hero-portal reveal" to="/about#faculty">
+          <img src="/assets/hero-commencement.jpg" alt="A teacher accompanying Xinhang students at commencement" />
+          <span class="hero-portal-copy">
+            <small>{{ t('Known & Guided', '看见陪伴') }}</small>
+            <strong>{{ t('Faculty & Mentorship', '教师团队') }}</strong>
+            <em>{{ t('Teachers who challenge, support and stay alongside', '有要求、有支持、有长期陪伴') }}</em>
+          </span>
+          <span class="hero-portal-arrow" aria-hidden="true">→</span>
+        </router-link>
+        <router-link class="hero-portal reveal" to="/campus">
+          <img src="/assets/campus-blossom.jpg" alt="Spring blossoms on the Xinhang campus" />
+          <span class="hero-portal-copy">
+            <small>{{ t('Life at Xinhang', '新航日常') }}</small>
+            <strong>{{ t('Campus & Traditions', '校园文化') }}</strong>
+            <em>{{ t('Spaces, ceremonies and the rhythm of school life', '校园空间、成长仪式与共同记忆') }}</em>
+          </span>
+          <span class="hero-portal-arrow" aria-hidden="true">→</span>
+        </router-link>
+      </nav>
     </section>
 
-    <section class="proof-bar" aria-label="学校亮点">
-      <div><strong>K-12</strong><span>{{ t('continuous pathway', '一贯制成长路径') }}</span></div>
-      <div><strong>Boarding</strong><span>{{ t('structured student life', '有秩序的寄宿生活') }}</span></div>
-      <div><strong>Global</strong><span>{{ t('bilingual perspective', '双语与全球视野') }}</span></div>
-      <div><strong>Jinan</strong><span>{{ t('rooted in Shandong', '根植济南与山东') }}</span></div>
+    <section class="pathfinder" id="explore" aria-label="Start here">
+      <div class="pathfinder-copy reveal">
+        <p class="eyebrow">{{ t('Start Here', '清晰入口') }}</p>
+        <h2>{{ t('Find the right doorway into Xinhang.', '从这里进入新航。') }}</h2>
+      </div>
+      <div class="pathfinder-grid">
+        <router-link class="pathfinder-card reveal" to="/apply"><span>01</span><strong>{{ t('Apply & Exam', '报名考试') }}</strong><em>{{ t('Online application, entrance permit, results and enrollment notice.', '在线填报、准考证生成、成绩查询与录取通知。') }}</em></router-link>
+        <router-link class="pathfinder-card reveal" to="/academics"><span>02</span><strong>{{ t('Academic Pathways', '学段课程') }}</strong><em>{{ t('Primary, middle school, high school and international tracks.', '小学、初中、高中与国际方向的完整路径。') }}</em></router-link>
+        <router-link class="pathfinder-card reveal" to="/student-life"><span>03</span><strong>{{ t('Student Life', '学生生活') }}</strong><em>{{ t('Leadership, clubs, boarding culture and school traditions.', '学生领导力、社团、寄宿文化与校园传统。') }}</em></router-link>
+        <router-link class="pathfinder-card reveal" to="/campus"><span>04</span><strong>{{ t('Campus Tour', '校园探访') }}</strong><em>{{ t('Architecture, learning spaces, residence and athletics.', '建筑空间、学习场景、寄宿生活与运动设施。') }}</em></router-link>
+      </div>
     </section>
 
     <section class="campus-feature" id="campus" aria-label="校园环境">
       <figure class="campus-feature-media reveal">
-        <img src="/assets/campus-academic-building.jpg" alt="Xinhang academic building" />
+        <img src="/assets/campus-academic-building.jpg" alt="Xinhang academic building and landscaped campus path" />
       </figure>
       <div class="campus-feature-copy reveal">
         <p class="eyebrow">{{ t('Campus', '校园') }}</p>
@@ -49,7 +85,7 @@
         <p>{{ t('Xinhang serves families who value serious academics, residential growth, and an international outlook. Classroom expectations, daily routines, college planning, and public expression are placed on one coherent path of development.', '新航面向期待扎实学术、寄宿成长与国际视野的家庭。学校把课堂要求、生活秩序、升学规划和公共表达放在同一条成长路径里，帮助学生形成更清楚的目标感。') }}</p>
         <p>{{ t('Education here is not only about results. It also values how students learn, work with others, and express themselves when the moment matters. A stable campus culture makes effort visible.', '这里的教育不是只追求结果，也重视学生如何学习、如何与人协作、如何在重要场合表达自己。稳定的校园文化，让每一次努力都能被看见。') }}</p>
       </div>
-      <aside class="brand-panel reveal" aria-label="学校品牌">
+      <aside class="brand-panel reveal" aria-label="学校品牌细节">
         <img class="brand-panel-logo" src="/assets/school-name-gold.png" alt="山东新航实验国际学校" />
         <div class="brand-line"></div>
         <p>{{ t('Make Each Life Bloom Wonderfully', '让每一个生命精彩绽放') }}</p>
@@ -88,7 +124,7 @@
       <div class="life-grid">
         <article class="life-card reveal"><div class="life-img art"></div><div><h3>{{ t('Commencement & Leadership', '仪式与领导力') }}</h3><p>{{ t('Ceremony is not decoration. It teaches students responsibility, honor, and community.', '仪式感不是形式，而是让学生理解责任、荣誉和共同体的时刻。') }}</p></div></article>
         <article class="life-card reveal"><div class="life-img science"></div><div><h3>{{ t('Arts & Assembly', '艺术与集会') }}</h3><p>{{ t('Stage, music, visual work, and public expression help students become steady and confident communicators.', '舞台、音乐、视觉和公共表达训练，让学生形成稳定而自信的表达力。') }}</p></div></article>
-        <article class="life-card reveal" id="boarding"><div class="life-img sport"></div><div><h3>{{ t('Boarding & Athletics', '寄宿与运动') }}</h3><p>{{ t('Rhythms, movement, teamwork, and self-management form a stable environment for growth.', '规律作息、运动习惯、同伴协作与生活自理，构成稳定的成长环境。') }}</p></div></article>
+        <article class="life-card reveal"><div class="life-img sport"></div><div><h3>{{ t('Boarding & Athletics', '寄宿与运动') }}</h3><p>{{ t('Rhythms, movement, teamwork, and self-management form a stable environment for growth.', '规律作息、运动习惯、同伴协作与生活自理，构成稳定的成长环境。') }}</p></div></article>
       </div>
     </section>
 
@@ -105,9 +141,9 @@
         </ol>
       </div>
       <div class="admission-actions reveal" id="visit">
-        <a class="btn btn-primary" href="tel:0531-00000000">{{ t('Call Admission', '联系招生办') }}</a>
+        <a class="btn btn-primary" href="tel:0531-59562266">{{ t('Call Admission', '联系招生办') }}</a>
         <a class="btn btn-secondary" href="mailto:admissions@xinhang.school?subject=Schedule a Visit">{{ t('Schedule a Visit', '预约探校') }}</a>
-        <router-link class="btn btn-light" to="/admission#steps">{{ t('How to Apply', '申请流程') }}</router-link>
+        <router-link class="btn btn-light" to="/apply#application">{{ t('How to Apply', '申请流程') }}</router-link>
       </div>
     </section>
 
